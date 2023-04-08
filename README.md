@@ -21,6 +21,6 @@ Nodejs must be installed on the machine running this script
 Clone this repo.
 
 '''
-node .\findfiles.js [path to scan] [minimum file size in bytes]
+node scanfiles.js [path to scan] [minimum file size in bytes]
 '''
 
