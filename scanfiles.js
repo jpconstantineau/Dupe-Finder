@@ -96,13 +96,18 @@ function getFilePaths(directoryPath, minSize) {
   let filePaths = [];
   const files = fs.readdirSync(directoryPath);
   files.forEach(file => {
-    const fullPath = path.join(directoryPath, file);
-    const stat = fs.statSync(fullPath);
-    if (stat.isDirectory()) {
-      filePaths = filePaths.concat(getFilePaths(fullPath, minSize));
-    } else if (stat.isFile() && stat.size >= minSize) {
-      var subfolderHash = getSubfolderHash(fullPath); 
-      filePaths.push({filePath: fullPath, subfolderHash});
+    try {
+      const fullPath = path.join(directoryPath, file);
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        filePaths = filePaths.concat(getFilePaths(fullPath, minSize));
+      } else if (stat.isFile() && stat.size >= minSize) {
+        var subfolderHash = getSubfolderHash(fullPath); 
+        filePaths.push({filePath: fullPath, subfolderHash});
+      }
+    }
+    catch (error) {
+      console.error(`Error processing folder: ${error.message}`);
     }
   });
   console.log('Number of files: '+ filePaths.length + ': '+ directoryPath);
