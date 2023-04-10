@@ -95,25 +95,30 @@ function getSubfolderHash(filePath) {
 function getFilePaths(directoryPath, minSize) {
   let filePaths = [];
   const files = fs.readdirSync(directoryPath);
-  try {
+  
   files.forEach(file => {
     try {
-      const fullPath = path.join(directoryPath, file);
-      const stat = fs.statSync(fullPath);
-      if (stat.isDirectory()) {
-        filePaths = filePaths.concat(getFilePaths(fullPath, minSize));
-      } else if (stat.isFile() && stat.size >= minSize) {
-        var subfolderHash = getSubfolderHash(fullPath); 
-        filePaths.push({filePath: fullPath, subfolderHash});
+      const statfolder  = fs.statSync(directoryPath);
+      if (statfolder.isSymbolicLink())
+      {
+        console.log('skipping symbolic link: '+ directoryPath);
+      }
+      else
+      {  
+        const fullPath = path.join(directoryPath, file);
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          filePaths = filePaths.concat(getFilePaths(fullPath, minSize));
+        } else if (stat.isFile() && stat.size >= minSize) {
+          var subfolderHash = getSubfolderHash(fullPath); 
+          filePaths.push({filePath: fullPath, subfolderHash});
+        }
       }
     }
     catch (error) {
       console.error(`Error processing folder: ${error.message}`);
     }
   });
-  } catch  (error) {
-    console.error(`Error processing folder: ${error.message}`);
-  }
   
   console.log('Number of files: '+ filePaths.length + ': '+ directoryPath);
   return filePaths;
