@@ -161,8 +161,10 @@ async function processFiles(filePath, subfolderHash, hostname) {
 }
 
 async function scanFiles(directoryPath, minSize) {
+  console.log ('Getting list of files and paths');
   const filePaths = getFilePaths(directoryPath, minSize);
-  console.log('scanFiles');
+  console.log ('Completed with '+ filePaths.length + ' files');
+  console.log('Now processing files:');
   const hostname = os.hostname();
   const promises = filePaths.map(({ filePath, subfolderHash }) =>
     limiter(() =>
