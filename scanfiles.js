@@ -95,6 +95,7 @@ function getSubfolderHash(filePath) {
 function getFilePaths(directoryPath, minSize) {
   let filePaths = [];
   const files = fs.readdirSync(directoryPath);
+  try {
   files.forEach(file => {
     try {
       const fullPath = path.join(directoryPath, file);
@@ -110,6 +111,10 @@ function getFilePaths(directoryPath, minSize) {
       console.error(`Error processing folder: ${error.message}`);
     }
   });
+  } catch  (error) {
+    console.error(`Error processing folder: ${error.message}`);
+  }
+  
   console.log('Number of files: '+ filePaths.length + ': '+ directoryPath);
   return filePaths;
 }
