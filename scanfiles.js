@@ -105,6 +105,7 @@ function getFilePaths(directoryPath, minSize) {
       filePaths.push({filePath: fullPath, subfolderHash});
     }
   });
+  console.log('Number of files: '+ filePaths.length + ': '+ directoryPath);
   return filePaths;
 }
 
