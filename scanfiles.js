@@ -97,7 +97,7 @@ function getFilePaths(directoryPath, minSize) {
   const files = fs.readdirSync(directoryPath);
   
   files.forEach(file => {
-    try {
+    
       const statfolder  = fs.statSync(directoryPath);
       if (statfolder.isSymbolicLink())
       {
@@ -106,6 +106,9 @@ function getFilePaths(directoryPath, minSize) {
       else
       {  
         const fullPath = path.join(directoryPath, file);
+        
+      try {    
+        /****************/
         const stat = fs.statSync(fullPath);
         if (stat.isDirectory()) {
           filePaths = filePaths.concat(getFilePaths(fullPath, minSize));
@@ -113,10 +116,14 @@ function getFilePaths(directoryPath, minSize) {
           var subfolderHash = getSubfolderHash(fullPath); 
           filePaths.push({filePath: fullPath, subfolderHash});
         }
+        /****************/
       }
-    }
-    catch (error) {
-      console.error(`Error processing folder: ${error.message}`);
+      catch (error) {
+        console.error(`Error processing folder: ${error.message}`);
+      }
+  
+      /****************/
+
     }
   });
   
