@@ -183,18 +183,61 @@ async function processFiles(filePath, subfolderHash, hostname) {
   }
 }
 
-async function scanFiles(directoryPath, minSize) {
-  console.log ('Getting list of files and paths');
-  const filePaths = getFilePaths(directoryPath, minSize);
-  console.log ('Completed with '+ filePaths.length + ' files');
-  console.log('Now processing files:');
-  const hostname = os.hostname();
+//const filecount = processFilePaths(directoryPath, minSize, hostname);
+async function processFilePaths(directoryPath, minSize, hostname) {
+  let fileCount = 0;
+  let filePaths = [];
+
+  const files = fs.readdirSync(directoryPath);
+  
+  files.forEach(file => {
+      const statfolder  = fs.statSync(directoryPath);
+      if (statfolder.isSymbolicLink())
+      {
+        console.log('skipping symbolic link: '+ directoryPath);
+      }
+      else
+      {  
+        const fullPath = path.join(directoryPath, file);
+        
+      try {    
+        /****************/
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          var nextcount =  processFilePaths(fullPath, minSize, hostname);
+          //fileCount =  fileCount + nextcount;
+        } else if (stat.isFile() && stat.size >= minSize) {
+          var subfolderHash = getSubfolderHash(fullPath);
+          filePaths.push({filePath: fullPath, subfolderHash});
+          fileCount++;
+        }
+        /****************/
+      }
+      catch (error) {
+        console.error(`Error processing folder: ${error.message}`);
+      }
+      /****************/
+    }
+  });
+  
+
   const promises = filePaths.map(({ filePath, subfolderHash }) =>
     limiter(() =>
       processFiles(filePath, subfolderHash, hostname)
     )
   );
   await Promise.all(promises); // wait for all promises to complete
+
+  console.log('Number of files: '+ fileCount + ': '+ directoryPath);
+  return fileCount;
+}
+
+
+async function scanFiles(directoryPath, minSize) {
+  console.log ('Getting list of files and paths');
+  const hostname = os.hostname();
+  var filecount = await processFilePaths(directoryPath, minSize, hostname);
+  console.log ('Completed with '+ filecount + ' files');
 }
 
 scanFiles(parampath,paramminsize); // Minimum size of 1kB
